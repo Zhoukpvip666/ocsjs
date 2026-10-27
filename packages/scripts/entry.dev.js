@@ -31,24 +31,22 @@ if (missingApis.length) {
 	return;
 }
 
-const { start, definedProjects, CommonProject, RenderScript, logoSvg } = OCS;
-
 
 const infos = GM_info;
 
 (function () {
 	'use strict';
 
-	const projects = definedProjects();
+	const projects = OCS.definedProjects();
 
 	// 运行脚本
-	start({
+	OCS.start({
 		projects: projects,
 		renderConfig: {
-			renderScript: RenderScript,
+			renderScript: OCS.RenderScript,
 			styles: [GM_getResourceText('STYLE')],
-			defaultPanelName: CommonProject.scripts.guide.namespace,
-			title: `${logoSvg} OCS <span style="font-size: 12px; color: #969696;">DEV v${infos.script.version}</span>`
+			defaultPanelName: OCS.CommonProject.scripts.guide.namespace,
+			title: `${OCS.logoSvg} OCS <span style="font-size: 12px; color: #969696;">DEV v${infos.script.version}</span>`
 		},
 		updatePage: 'https://docs.ocsjs.com/docs/update'
 	});

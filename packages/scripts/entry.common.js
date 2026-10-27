@@ -31,23 +31,21 @@ if (missingApis.length) {
 	return;
 }
 
-const { start, definedProjects, CommonProject, RenderScript, logoSvg } = OCS;
-
 const infos = GM_info;
 
 (function () {
 	'use strict';
 
-	const projects = definedProjects();
+	const projects = OCS.definedProjects();
 
 	// 运行脚本
-	start({
+	OCS.start({
 		projects: projects,
 		renderConfig: {
-			renderScript: RenderScript,
+			renderScript: OCS.RenderScript,
 			styles: [STYLE],
-			defaultPanelName: CommonProject.scripts.guide.namespace,
-			title: `${logoSvg} OCS 全域名通用版 <span style="font-size: 12px; color: #969696;">v${infos.script.version}</span>`
+			defaultPanelName: OCS.CommonProject.scripts.guide.namespace,
+			title: `${OCS.logoSvg} OCS 全域名通用版 <span style="font-size: 12px; color: #969696;">v${infos.script.version}</span>`
 		},
 		updatePage:
 			GM_info.scriptHandler === 'Tampermonkey'

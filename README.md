@@ -4,6 +4,7 @@
 >
 > 本地验证：`pnpm install --frozen-lockfile` → `pnpm build` → `pnpm test:local` → `pnpm test:licenses`。
 > 交互示例：`pnpm example:local`，打开 <http://127.0.0.1:8788/>。
+> 本机脚本安装：服务运行后，在装有篡改猴的 Edge 中打开 <http://127.0.0.1:8788/install/ocs.user.js>。
 
 <div align="center">
 

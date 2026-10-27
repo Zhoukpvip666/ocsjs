@@ -56,6 +56,13 @@ GET 与 POST 两种方式分别验证下列 8 个例子。
 缺失 GM_info，共 **12 项通过**。这些是可复现的隔离兼容测试；用户当前 Edge 页面
 仍需替换脚本后实测，不能据此宣称所有真实平台流程已验证。
 
+后续用户控制台报告入口附近 `Missing initializer in destructuring declaration`。
+本地完整文件的语法检查与独立浏览器加载均通过，尚未取得用户实际安装副本，不能
+断言是管理器缺陷或复制损坏。现已将三种入口的顶层对象解构改为直接访问 `OCS.*`。
+重建后通过 12 项启动测试、164 项匹配测试及 5 项许可检查；隔离 Edge 中的完整脚本
+仍可挂载面板。新增本机安装地址 <http://127.0.0.1:8788/install/ocs.user.js>，减少手动
+复制整份文件的步骤。该地址由 `pnpm example:local` 提供，真实管理器安装仍待用户确认。
+
 - 保留根 MIT 许可和 `Copyright (c) 2022 enncy`，新增 [fork 来源说明](FORK-NOTICE.md)。
 - 用户脚本名称和 namespace/source 标明独立 fork；原作者字段保留 enncy。
 - 按实际打包模块收集 7 项第三方依赖的完整许可文件，保留各自 MIT、ISC、

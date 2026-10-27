@@ -38,7 +38,9 @@ const server = http.createServer(async (req, res) => {
 			return res.end('invalid-json');
 		}
 		if (url.pathname === '/favicon.ico') { res.writeHead(204); return res.end(); }
-		const file = url.pathname === '/' ? 'examples/local-smoke/index.html' : url.pathname === '/core.js' ? 'dist/core.js' : null;
+		const file = url.pathname === '/' ? 'examples/local-smoke/index.html' :
+			url.pathname === '/core.js' ? 'dist/core.js' :
+			url.pathname === '/install/ocs.user.js' ? 'dist/ocs.user.js' : null;
 		if (!file) { res.writeHead(404); return res.end(); }
 		res.writeHead(200, { 'Content-Type': file.endsWith('.js') ? 'application/javascript; charset=utf-8' : 'text/html; charset=utf-8' });
 		fs.createReadStream(path.join(root, file)).pipe(res);

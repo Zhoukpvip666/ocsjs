@@ -47,6 +47,15 @@ GET 与 POST 两种方式分别验证下列 8 个例子。
 
 ## 本次处理
 
+### 后续：Tampermonkey 启动检查修复（2026-10-27）
+
+实际页面出现“不支持 Tampermonkey”弹窗后，定位到三种入口通过
+`Reflect.get(globalThis, api)` 检查 API；管理器将 API 注入为脚本作用域变量时会被漏检。
+已改为直接对 API 标识符执行 `typeof`，并在接口确实缺失时列出具体名称。
+新增 `pnpm test:startup`：三种入口各覆盖作用域注入、全局属性注入、缺失请求 API、
+缺失 GM_info，共 **12 项通过**。这些是可复现的隔离兼容测试；用户当前 Edge 页面
+仍需替换脚本后实测，不能据此宣称所有真实平台流程已验证。
+
 - 保留根 MIT 许可和 `Copyright (c) 2022 enncy`，新增 [fork 来源说明](FORK-NOTICE.md)。
 - 用户脚本名称和 namespace/source 标明独立 fork；原作者字段保留 enncy。
 - 按实际打包模块收集 7 项第三方依赖的完整许可文件，保留各自 MIT、ISC、

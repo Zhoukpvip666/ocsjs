@@ -20,6 +20,7 @@
 		"changelog:simplify": "gulp -f ./scripts/simplify_changelog.js",
 		"test": "tsx tests/resolver.test.ts",
 		"test:local": "node tests/local-smoke.cjs",
+		"test:startup": "node --test tests/startup.test.cjs",
 		"test:licenses": "node --test tests/licenses.test.cjs",
 		"example:local": "node tests/local-smoke.cjs --serve",
 		"test:eus": "pnpm -C A:/VSCode/code/eus build && pnpm -C packages/core link A:/VSCode/code/eus && pnpm -C packages/scripts link A:/VSCode/code/eus && npm run build",

@@ -1,26 +1,28 @@
 /* eslint-disable no-undef */
 /// <reference path="./global.d.ts" />
 
-// 环境检测
-if (
-	[
-		'GM_getTab',
-		'GM_saveTab',
-		'GM_setValue',
-		'GM_getValue',
-		'unsafeWindow',
-		'GM_listValues',
-		'GM_deleteValue',
-		'GM_notification',
-		'GM_xmlhttpRequest',
-		'GM_getResourceText',
-		'GM_addValueChangeListener',
-		'GM_removeValueChangeListener'
-	].some((api) => typeof Reflect.get(globalThis, api) === 'undefined')
-) {
+// 用户脚本 API 可能由管理器注入为词法变量，并不是 globalThis 的属性。
+const missingApis = [
+	['GM_info', typeof GM_info],
+	['GM_getTab', typeof GM_getTab],
+	['GM_saveTab', typeof GM_saveTab],
+	['GM_setValue', typeof GM_setValue],
+	['GM_getValue', typeof GM_getValue],
+	['unsafeWindow', typeof unsafeWindow],
+	['GM_listValues', typeof GM_listValues],
+	['GM_deleteValue', typeof GM_deleteValue],
+	['GM_notification', typeof GM_notification],
+	['GM_xmlhttpRequest', typeof GM_xmlhttpRequest],
+	['GM_getResourceText', typeof GM_getResourceText],
+	['GM_addValueChangeListener', typeof GM_addValueChangeListener],
+	['GM_removeValueChangeListener', typeof GM_removeValueChangeListener]
+].filter(([, type]) => type === 'undefined').map(([name]) => name);
+
+if (missingApis.length) {
+	const manager = typeof GM_info === 'undefined' ? '未知管理器' : GM_info.scriptHandler;
 	const open = confirm(
-		`OCS网课脚本不支持当前的脚本管理器（${GM_info.scriptHandler}）。` +
-		'请前往 https://docs.ocsjs.com/docs/script 下载指定的脚本管理器，例如 “Scriptcat 脚本猫” 或者 “Tampermonkey 油猴”'
+		`OCS 启动检查未通过（${manager}），缺少接口：${missingApis.join(', ')}。` +
+		'请检查脚本的 @grant 声明及管理器运行权限；如需查看安装教程，请点击确定。'
 	);
 
 	if (open) {

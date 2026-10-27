@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import banner from 'vite-plugin-banner';
 import { author, description, homepage, license, name } from '../../package.json';
 import dotenv from 'dotenv';
+const { licenseNotices } = require('../../scripts/collect-licenses.cjs');
 
 const bannerContent = `
 /*!
@@ -42,5 +43,5 @@ export default defineConfig({
 		}
 	},
 
-	plugins: [visualizer(), banner(bannerContent)]
+	plugins: [visualizer(), banner(bannerContent), licenseNotices('core', require('path').resolve(__dirname, '../..'))]
 });

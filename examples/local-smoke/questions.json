@@ -1,0 +1,10 @@
+[
+  { "id": "single-shuffled", "title": "中国的首都是哪座城市？", "type": "single", "options": ["上海", "广州", "北京", "深圳"], "answer": "北京", "expected": [2] },
+  { "id": "multiple-text", "title": "下列哪些数是质数？", "type": "multiple", "options": ["4", "5", "2", "3"], "answer": "2#3#5", "expected": [1, 2, 3] },
+  { "id": "judgement", "title": "地球围绕太阳运行。", "type": "judgement", "options": ["错误", "正确"], "answer": "正确", "expected": [1] },
+  { "id": "completion", "title": "中华人民共和国成立于哪一年，首都是哪里？", "type": "completion", "blanks": 2, "answer": "1949#北京", "expected": ["1949", "北京"] },
+  { "id": "multiple-letters", "title": "示例题：请选择第一个和第三个选项。", "type": "multiple", "options": ["红色", "绿色", "蓝色", "黑色"], "answer": "AC", "expected": [0, 2] },
+  { "id": "single-prefixed", "title": "2 加 2 等于几？", "type": "single", "options": ["A. 3", "B. 4", "C. 5"], "answer": "4", "expected": [1] },
+  { "id": "not-found", "title": "本地题库没有收录的示例题。", "type": "single", "options": ["甲", "乙", "丙"], "answer": null, "expected": [] },
+  { "id": "unmatched", "title": "题库答案不在当前选项中的示例题。", "type": "single", "options": ["金星", "火星", "木星"], "answer": "水星", "expected": [] }
+]

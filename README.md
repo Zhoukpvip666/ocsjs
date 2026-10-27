@@ -1,3 +1,10 @@
+> **独立 fork：** 本仓库由 [Zhoukpvip666](https://github.com/Zhoukpvip666/ocsjs) 维护，
+> 源自 [ocsjs/ocsjs](https://github.com/ocsjs/ocsjs)，原作者 enncy。
+> [许可证与版权说明](FORK-NOTICE.md) · [本地示例验证记录](VALIDATION.md)。
+>
+> 本地验证：`pnpm install --frozen-lockfile` → `pnpm build` → `pnpm test:local` → `pnpm test:licenses`。
+> 交互示例：`pnpm example:local`，打开 <http://127.0.0.1:8788/>。
+
 <div align="center">
 
 <div style="padding:8px;border-radius:100%;background:white;width:124px;height:124px">

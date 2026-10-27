@@ -6,13 +6,14 @@ const util = require('util');
 const { version } = require('../package.json');
 /** @type {(...args: any[])=> Promise<void>} */
 const execOut = util.promisify(require('./utils').execOut);
-const { createUserScript, createMetaFile } = require('../packages/utils');
 const path = require('path');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const { build: buildStyle } = require('./build-style');
+const { writeDistributionNotices } = require('./collect-licenses.cjs');
 
 dotenv.config();
+process.env.VITE_BUILD_PATH = process.env.VITE_BUILD_PATH || '../../dist';
 
 const distPath = process.env.BUILD_PATH || '../dist';
 console.log('BUILD_PATH: ', distPath);
@@ -27,13 +28,15 @@ async function testResolver() {
 }
 
 async function buildPackages() {
+	await execOut('pnpm exec tsc', { cwd: '../packages/utils' });
 	await execOut('tsc', { cwd: '../packages/core' });
-	await execOut('vite build', { cwd: '../packages/core' });
+	await execOut('pnpm exec vite build', { cwd: '../packages/core' });
 	await execOut('tsc', { cwd: '../packages/scripts' });
-	await execOut('vite build', { cwd: '../packages/scripts' });
+	await execOut('pnpm exec vite build', { cwd: '../packages/scripts' });
 }
 
 async function createUserJs() {
+	const { createUserScript, createMetaFile } = require('../packages/utils');
 	/** 模拟浏览器环境 */
 	require('browser-env')();
 
@@ -76,7 +79,7 @@ async function createUserJs() {
 				gap: '\t'.repeat(4)
 			},
 			metadata: {
-				name: 'OCS 网课助手',
+				name: 'OCS 网课助手 (Zhoukpvip666 fork)',
 				version: version,
 				description: [
 					'OCS(online-course-script) 网课助手，官网 https://docs.ocsjs.com ，专注于帮助大学生从网课中释放出来',
@@ -86,9 +89,9 @@ async function createUserJs() {
 				].join(' '),
 				author: 'enncy',
 				license: 'MIT',
-				namespace: 'https://enncy.cn',
+				namespace: 'https://github.com/Zhoukpvip666/ocsjs',
 				homepage: 'https://docs.ocsjs.com',
-				source: 'https://github.com/ocsjs/ocsjs',
+				source: 'https://github.com/Zhoukpvip666/ocsjs',
 				icon: 'https://cdn.ocsjs.com/logo.png',
 				connect: ['enncy.cn', 'icodef.com', 'ocsjs.com', 'zaizhexue.top', 'localhost', '127.0.0.1',
 					// 智慧树阿里云资源，应用： 图片题资源访问
@@ -155,4 +158,9 @@ async function createUserJs() {
 	await createUserScript(commonOpts);
 }
 
-exports.default = series(cleanOutput, testResolver, buildPackages, createUserJs);
+function distributionNotices(done) {
+	writeDistributionNotices(distResolvedPath);
+	done();
+}
+
+exports.default = series(cleanOutput, testResolver, buildPackages, createUserJs, distributionNotices);

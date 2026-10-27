@@ -23,6 +23,7 @@ async function build() {
 	const source = fs.readFileSync(ENTRY, 'utf8');
 	const result = await less.render(source, {
 		filename: ENTRY,
+		paths: [path.join(ROOT, 'packages/scripts/node_modules'), path.join(ROOT, 'node_modules')],
 		// 压缩由下游构建（userscript 打包）决定是否处理，这里保留可读格式
 		compress: false
 	});

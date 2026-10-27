@@ -5,7 +5,7 @@ packages:
 # 排除 pnpm minimumReleaseAge 供应链检查，避免 CI 安装依赖被拦截
 minimumReleaseAgeExclude:
   - easy-us
-# 批准依赖的安装脚本（新版 pnpm 默认忽略并报错 ERR_PNPM_IGNORED_BUILDS）
-onlyBuiltDependencies:
-  - esbuild
-  - es5-ext
+# pnpm >= 10.26（包含 pnpm 11）使用统一的依赖构建脚本白名单。
+allowBuilds:
+  esbuild: true
+  es5-ext: true

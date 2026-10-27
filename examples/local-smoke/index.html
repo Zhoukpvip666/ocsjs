@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OCS 本地功能验证</title>
+<style>
+  *{box-sizing:border-box}body{margin:0;background:#f2f5f9;color:#21304a;font:15px/1.65 system-ui,"Microsoft YaHei",sans-serif}
+  main{max-width:1160px;margin:36px auto;padding:0 24px}h1{margin:0;font-size:28px}p{color:#637188}
+  header{margin-bottom:24px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}
+  button,select{font:inherit;border:1px solid #cad4e1;background:white;border-radius:8px;padding:8px 16px;cursor:pointer}
+  button:first-child{background:#2563eb;color:white;border-color:#2563eb}button:disabled{opacity:.5}
+  #questions{display:grid;grid-template-columns:1fr 1fr;gap:16px}.question{padding:18px 22px;background:white;border:1px solid #dce4ef;border-radius:12px}
+  .question h2{font-size:16px;margin:8px 0 12px}.kind{font-size:12px;color:#64748b}.option{display:block;padding:4px 0}input{margin-right:10px}
+  textarea{display:block;resize:vertical;width:100%;padding:8px;border:1px solid #ccd6e3;border-radius:6px;margin:6px 0;font:inherit}
+  .result{color:#64748b;font-size:13px;margin-top:12px}.done{border-color:#68b894}.miss{border-color:#deb36c}
+  #status{font-weight:600;color:#2453a6}footer{margin-top:24px;color:#637188;font-size:13px}@media(max-width:700px){#questions{grid-template-columns:1fr}}
+</style>
+<main>
+  <header><h1>OCS 本地功能验证</h1><p>直接调用 OCS 核心工作器，使用本地示例题库验证读取、搜题、匹配和填写。</p>
+  <div class="toolbar"><button id="start" disabled>运行示例</button><button id="pause" disabled>暂停</button><button id="resume" disabled>继续</button><button id="reset">重置</button><select id="method"><option>GET</option><option>POST</option></select><span id="status">正在加载</span></div></header>
+  <section id="questions"></section>
+  <footer>本页是通用 DOM 示例，未连接学习通账号、外部题库或 AI。OCS 原作者 enncy，MIT；本 fork 的许可与来源说明见仓库 FORK-NOTICE.md。</footer>
+</main>
+<script>window.unsafeWindow = window;</script>
+<script src="/core.js"></script>
+<script>
+  const kinds={single:'单选',multiple:'多选',judgement:'判断',completion:'填空'};
+  const start=document.querySelector('#start'), pause=document.querySelector('#pause'), resume=document.querySelector('#resume');
+  window.demo={ready:false,done:false,results:[],worker:null,requests:0,paused:false};
+  function render(questions){
+    const root=document.querySelector('#questions');root.replaceChildren();
+    questions.forEach((q,i)=>{
+      const card=document.createElement('article');card.className='question';card.dataset.type=q.type;card.dataset.id=q.id;
+      const kind=document.createElement('span');kind.className='kind';kind.textContent=`${i+1} / ${questions.length} · ${kinds[q.type]}`;
+      const title=document.createElement('h2');title.className='title';title.textContent=q.title;card.append(kind,title);
+      if(q.type==='completion'){
+        for(let n=0;n<q.blanks;n++){const field=document.createElement('textarea');field.className='option';field.rows=1;field.setAttribute('aria-label',`第 ${n+1} 空`);card.append(field);}
+      }else q.options.forEach((text,j)=>{
+        const label=document.createElement('label');label.className='option';
+        const input=document.createElement('input');input.type=q.type==='multiple'?'checkbox':'radio';input.name=q.id;input.value=j;
+        label.append(input,document.createTextNode(text));card.append(label);
+      });
+      const result=document.createElement('div');result.className='result';result.textContent='等待运行';card.append(result);root.append(card);
+    });
+  }
+  window.runDemo=async function(method='get'){
+    window.demo.done=false;window.demo.results=[];start.disabled=true;pause.disabled=false;
+    const worker=window.demo.worker=new OCS.OCSWorker({
+      root:'.question',elements:{title:'.title',options:'.option'},thread:2,
+      answerer:async(elements,ctx)=>{
+        window.demo.requests++;
+        return OCS.defaultAnswerWrapperHandler([{
+          name:'本地示例题库',url:location.origin+'/api/search',method:method.toLowerCase(),type:'fetch',headers:{},
+          data:{title:'${title}',type:'${type}',options:'${options}'},
+          handler:'return (res) => res.results.map(item => [item.question,item.answer])'
+        }],{title:elements.title[0].textContent,type:ctx.type,options:elements.options.map(o=>o.textContent).join('\n')});
+      },
+      work:{
+        type:ctx=>ctx.root.dataset.type,
+        optionText:el=>el.textContent,
+        handler(type,answer,option){
+          if(type==='completion'){option.value=answer;option.dispatchEvent(new Event('input',{bubbles:true}));}
+          else {const input=option.querySelector('input');if(!input.checked)input.click();}
+        }
+      },
+      onResultsUpdate(result){
+        const card=result.ctx.root;
+        card.querySelector('.result').textContent=result.resolved?(result.result?.finish?'已匹配并填写':'未匹配，保留空白'):(result.searching?'正在查询本地题库':'等待搜索');
+        if(result.resolved)card.classList.add(result.result?.finish?'done':'miss');
+      }
+    });
+    document.querySelector('#status').textContent='运行中';
+    try{
+      const results=await worker.doWork();
+      window.demo.results=results.map(r=>({id:r.ctx.root.dataset.id,requested:r.requested,resolved:r.resolved,finish:!!r.result?.finish,error:r.error||null}));
+      window.demo.done=true;
+      const count=window.demo.results.filter(r=>r.finish).length;
+      document.querySelector('#status').textContent=`完成：${count} 题已填写，${results.length-count} 题未匹配`;
+      return window.demo.results;
+    }finally{pause.disabled=true;resume.disabled=true;}
+  };
+  start.onclick=()=>runDemo(document.querySelector('#method').value).catch(e=>{document.querySelector('#status').textContent=e.message;window.demo.error=e.message;});
+  pause.onclick=()=>{window.demo.worker.emit('stop');window.demo.paused=true;pause.disabled=true;resume.disabled=false;document.querySelector('#status').textContent='已暂停，等待当前请求结束';};
+  resume.onclick=()=>{window.demo.worker.emit('continuate');window.demo.paused=false;pause.disabled=false;resume.disabled=true;document.querySelector('#status').textContent='运行中';};
+  document.querySelector('#reset').onclick=()=>location.reload();
+  fetch('/questions').then(r=>r.json()).then(q=>{render(q);window.demo.ready=true;start.disabled=false;document.querySelector('#status').textContent='8 道示例题已就绪';});
+</script>
+</html>
